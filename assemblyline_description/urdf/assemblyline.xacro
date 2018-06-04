@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+
+<robot name="assemblyline" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- some parameters -->
+  <xacro:property name="pi" value="3.141592654" />
+  <xacro:property name="line_loc" value="0.250" />
+	<xacro:property name="length_base" value="5"/>
+	<xacro:property name="width_base" value="0.350"/>
+	<xacro:property name="higth_base" value="0.01"/>
+	<xacro:property name="mass_base" value="100"/>
+  <xacro:property name="camera1_loc" value="0.50" />
+	<xacro:property name="camera_link" value="0.05" />
+
+  <!-- Import all Gazebo-customization elements, including Gazebo colors -->
+  <xacro:include filename="$(find assemblyline_description)/urdf/assemblyline.gazebo.xacro" />
+  <!-- Import Rviz colors -->
+  <xacro:include filename="$(find assemblyline_description)/urdf/materials.xacro" />
+  <!-- World -->
+  <link name="world">
+  </link>
+
+<!-- assembly_line location -->
+  <joint name="world_line" type="prismatic">
+     <origin xyz="${line_loc} 0 0" rpy="0 0 0"/>
+     <parent link="world"/>
+     <child link="transline"/>
+     <axis xyz="0 1 0"/>
+     <limit velocity="0.25" effort="1000" lower="-50" upper="50" />
+  </joint>
+
+	  <!-- Transmission 7 -->
+  <transmission name="tran01">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="world_line">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor01">
+      <hardwareInterface>VelocityJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <link name="transline">
+    <visual>
+      <origin xyz="0 0 ${higth_base/2}" rpy="0 0 0"/>
+      <geometry>
+				<box size="${width_base} ${length_base} ${higth_base}"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+
+		<collision>
+      <origin xyz="0 0 ${higth_base/2}" rpy="0 0 0"/>
+      <geometry>
+				<box size="${width_base} ${length_base} ${higth_base}"/>
+      </geometry>
+    </collision>
+
+    <inertial>
+      <origin xyz="0 0 ${higth_base/2}" rpy="0 0 0"/>
+			<mass value="${mass_base}"/>
+			<inertia ixy="0.0" ixz="0.0" iyz="0.0"
+				 ixx="${1/12*mass_base*(length_base*length_base+higth_base*higth_base)}"
+         iyy="${1/12*mass_base*(width_base*width_base+higth_base*higth_base)}"
+         izz="${1/12*mass_base*(length_base*length_base+length_base*length_base)}"/>
+		</inertial>
+  </link>
+
+	<!-- camera1 location -->
+  <joint name="world_camera1" type="prismatic">
+     <origin xyz="${line_loc} 0 ${camera1_loc}" rpy="0 ${pi/2} 0"/>
+     <parent link="world"/>
+     <child link="camera1"/>
+     <axis xyz="0 0 1"/>
+     <limit velocity="0.01" effort="1000" lower="${-camera1_loc}" upper="${camera1_loc}" />
+  </joint>
+
+	  <!-- Transmission 7 -->
+  <transmission name="tran02">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="world_camera1">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor02">
+      <hardwareInterface>VelocityJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+					
+	<link name="camera1">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	<box size="${camera_link} ${camera_link} ${camera_link}"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	<box size="${camera_link} ${camera_link} ${camera_link}"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+
+</robot>
