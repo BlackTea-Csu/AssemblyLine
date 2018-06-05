@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+
+<launch>
+  <arg name="use_gazebo"	   default="false" />
+  <arg name="use_moveit"     default="true" />
+  <arg name="use_robot_name" default="open_manipulator_chain"/>
+
+  <param name="gazebo"            value="$(arg use_gazebo)" type="bool"/>
+  <param name="moveit"            value="$(arg use_moveit)" type="bool"/>
+  <param name="gazebo_robot_name" value="$(arg use_robot_name)"/>
+  <node name="open_manipulator_position_ctrl" pkg="open_manipulator_position_ctrl" type="position_controller" required="true" output="screen">
+    <remap from="/open_manipulator_chain/joint_states" to="/robot2/open_manipulator_chain/joint_states" />
+    <remap from="/open_manipulator_chain/joint1_position/command" to="/robot2/open_manipulator_chain/joint1_position/command" />
+    <remap from="/open_manipulator_chain/joint2_position/command" to="/robot2/open_manipulator_chain/joint2_position/command" />
+		<remap from="/open_manipulator_chain/joint3_position/command" to="/robot2/open_manipulator_chain/joint3_position/command" />
+		<remap from="/open_manipulator_chain/joint4_position/command" to="/robot2/open_manipulator_chain/joint4_position/command" />
+		<remap from="/open_manipulator_chain/grip_joint_position/command" to="/robot2/open_manipulator_chain/grip_joint_position/command" />    
+		<remap from="/open_manipulator_chain/grip_joint_sub_position/command" to="/robot2/open_manipulator_chain/grip_joint_sub_position/command" />
+  </node>  
+</launch>
