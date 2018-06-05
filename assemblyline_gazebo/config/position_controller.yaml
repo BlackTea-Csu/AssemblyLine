@@ -1,0 +1,17 @@
+assemblyline:
+  # Publish all joint states -----------------------------------
+  joint_state_controller:
+    type: joint_state_controller/JointStateController
+    publish_rate: 125
+
+  # Position Controllers ---------------------------------------
+  transline_position:
+    type: velocity_controllers/JointPositionController
+    joint: world_line
+    pid: {p: 100.0, i: 0.01, d: 1.0}
+
+  camera1_position:
+    type: velocity_controllers/JointPositionController
+    joint: world_camera1
+    pid: {p: 100.0, i: 0.01, d: 1.0}
+

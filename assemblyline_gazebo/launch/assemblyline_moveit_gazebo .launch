@@ -1,0 +1,46 @@
+<?xml version="1.0" ?>
+<launch>
+  <!-- These are the arguments you can pass this launch file, for example paused:=true -->
+  <arg name="paused" default="false"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="gui" default="true"/>
+  <arg name="headless" default="false"/>
+  <arg name="debug" default="false"/>
+
+  <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find assemblyline_gazebo)/world/empty.world"/>
+    <arg name="debug" value="$(arg debug)" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+    <arg name="headless" value="$(arg headless)"/>
+  </include>
+
+
+<!-- 命名空间Group分组,以分别驱使流水线(包括传送带及传感器)\机械臂,这样对于模块化驱动或许有好处-->
+<!--需要修改对应的.gazebo及position_controller的namespace-->
+<group ns="robot1">
+  <!-- Load the URDF into the ROS Parameter Server -->
+  <param name="robot_description" 
+   command="$(find xacro)/xacro.py '$(find assemblyline_description)/urdf/assemblyline.xacro'"/>
+
+  <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
+  <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+     args="-urdf -model assemblyline -z 0.0 -param robot_description"/>
+  <!-- ros_control aseembly line launch file -->
+  <include file="$(find assemblyline_gazebo)/launch/position_controller.launch"/>
+</group>
+
+
+<group ns="robot2">
+
+  <param name="robot_description" 
+   command="$(find xacro)/xacro.py '$(find open_manipulator_description)/urdf/open_manipulator_.xacro'"/>
+  <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
+  <node name="urdf_spawner2" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+     args="-urdf -model open_manipulator_chain -z 0.0 -param robot_description"/>
+  <include file="$(find open_manipulator_gazebo)/launch/position_controller_robot2.launch"/>
+</group>
+
+</launch>
